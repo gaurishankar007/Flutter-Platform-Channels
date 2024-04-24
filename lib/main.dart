@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'views/android_channel_view.dart';
 import 'views/home_view.dart';
-import 'views/ios_channel_view.dart';
 
 void main() {
   runApp(const FlutterChannel());
@@ -20,11 +18,7 @@ class FlutterChannel extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      routes: {
-        '/': (context) => const HomeView(),
-        '/ios': (context) => const IOSChannelView(),
-        '/android': (context) => const AndroidChannelView(),
-      },
+      home: const HomeView(),
     );
   }
 }

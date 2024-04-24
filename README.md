@@ -1,16 +1,21 @@
-# platform_channel
+# Flutter & Platform Specific Channels
 
-A new Flutter project.
+A Flutter project demonstrating how to communicate with android and ios native sides.
 
-## Getting Started
+## Setup
 
-This project is a starting point for a Flutter application.
+- Configure `MethodChannel` inside
+  - `MainActivity.kt` for android
+  - `AppDelegate.kt` for ios
+- Define operations for individual call methods in the native side
+- Return results from the native side
+- Handle Errors in the native side
+- Configure `MethodChannel` inside flutter
+- Call `invokeMethods` on method channel inside flutter
+- Do operation in flutter after getting response from the native side
+- Handle platform exceptions inside flutter
 
-A few resources to get you started if this is your first Flutter project:
+## Examples
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Get an String object from the native side
+- Get battery level from the native side
