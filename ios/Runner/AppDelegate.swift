@@ -12,17 +12,17 @@ import Flutter
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     let methodChannel = FlutterMethodChannel(name: channel, binaryMessenger: controller.binaryMessenger)
 
-    methodChannel.setMethodHandler( {
-      (call: FlutterMethodChannel, result: FlutterResult) -> Void in
+    methodChannel.setMethodCallHandler( {
+      (call: FlutterMethodCall, result: FlutterResult) -> Void in
 
-      switch (call.method) {
+      switch call.method {
         case "greeting":        
           let arguments = call.arguments as Map<String, String>
           let name = arguments["name"];
           result("Hi \(name)! I am Swift 😎")
         case "getBatteryLevel":
           let batteryLevel = getBatteryLevel();
-          if (batteryLevel == -1) {
+          if batteryLevel == -1 {
             result(
               FlutterError(
                 code: "UNAVAILABLE",
