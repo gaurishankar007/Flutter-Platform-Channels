@@ -3,7 +3,7 @@ import Flutter
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-  let channel = "flutter.native/helper";
+  let channel = "flutter.native/helper"
 
   override func application(
     _ application: UIApplication,
@@ -18,10 +18,10 @@ import Flutter
       switch call.method {
         case "greeting":        
           let arguments = call.arguments as Map<String, String>
-          let name = arguments["name"];
+          let name = arguments["name"]
           result("Hi \(name)! I am Swift 😎")
         case "getBatteryLevel":
-          let batteryLevel = getBatteryLevel();
+          let batteryLevel = getBatteryLevel()
           if batteryLevel == -1 {
             result(
               FlutterError(
