@@ -17,17 +17,17 @@ import Flutter
 
       switch call.method {
         case "greeting":        
-          let arguments = call.arguments as Map<String, String>
-          let name = arguments["name"]
+          guard let arguments = call.arguments as? [String: String] else {return}
+          let name = arguments["name"]!
           result("Hi \(name)! I am Swift 😎")
         case "getBatteryLevel":
-          let batteryLevel = getBatteryLevel()
+          let batteryLevel = self.getBatteryLevel()
           if batteryLevel == -1 {
             result(
               FlutterError(
                 code: "UNAVAILABLE",
                 message: "Battery information not available",
-                details: nil,
+                details: nil
               )
             )
           } else {
