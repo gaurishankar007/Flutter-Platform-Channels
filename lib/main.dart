@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'views/home_view.dart';
 
 void main() {
-  runApp(const FlutterChannel());
+  runApp(const PlatformChannelExample());
 }
 
-class FlutterChannel extends StatelessWidget {
-  const FlutterChannel({super.key});
+class PlatformChannelExample extends StatelessWidget {
+  const PlatformChannelExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +16,7 @@ class FlutterChannel extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        appBarTheme: AppBarTheme(backgroundColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       home: const HomeView(),

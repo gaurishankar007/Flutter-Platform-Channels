@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'dart:async';
 
-import '../errors/exception_handler.dart';
-import '../widgets/snackbar_message.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_sliding_toast/flutter_sliding_toast.dart';
+
+import '../controllers/platform_controller.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -12,27 +13,87 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final platformChannel = const MethodChannel("flutter.native/helper");
+  final _platformController = PlatformController();
+  StreamSubscription<String>? _streamSubscription;
+  final ValueNotifier<String> _valueNotifier = ValueNotifier("");
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Platform Channels'),
+        title: const Text(
+          'Platform Channels',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
       ),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              'Method Channel',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () => greeting(context),
+              onPressed: () async {
+                final data = await _platformController.greeting();
+                if (data.$1 != null) {
+                  _showSuccess("${data.$1}");
+                } else if (data.$2 != null) {
+                  _showError(data.$2!);
+                }
+              },
               child: const Text('Say hello to platform'),
             ),
-            const SizedBox(height: 30, width: double.maxFinite),
+            const SizedBox(height: 20, width: double.maxFinite),
             ElevatedButton(
-              onPressed: () => getBatteryLevel(context),
+              onPressed: () async {
+                final data = await _platformController.getBatteryLevel();
+                if (data.$1 != null) {
+                  _showSuccess("Battery Level: ${data.$1}");
+                } else if (data.$2 != null) {
+                  _showError(data.$2!);
+                }
+              },
               child: const Text('Show Battery Level'),
+            ),
+            const SizedBox(height: 50),
+            Text(
+              'Event Channel',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 20),
+            ValueListenableBuilder(
+              valueListenable: _valueNotifier,
+              builder: (context, value, child) {
+                return RichText(
+                  text: TextSpan(
+                    text: "Time:",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: value,
+                        style: TextStyle(fontWeight: FontWeight.normal),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _receiveEvents,
+              child: const Text('Receive Events'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _stopEvents,
+              child: const Text('Stop Events'),
             ),
           ],
         ),
@@ -40,46 +101,35 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  greeting(BuildContext context) async {
-    exceptionHandler(() async {
-      final argument = {"name": "Flutter"};
-      final String response = await platformChannel.invokeMethod('greeting', argument);
-      if (context.mounted) {
-        showSnackBar(
-          context,
-          message: response,
-          color: Colors.green,
-        );
-      }
-    }, context);
+  _receiveEvents() {
+    _streamSubscription = _platformController.getEventStream().listen(
+      (event) => _valueNotifier.value = event,
+    );
   }
 
-  getBatteryLevel(BuildContext context) async {
-    exceptionHandler(() async {
-      final int batteryLevel = await platformChannel.invokeMethod('getBatteryLevel');
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog.adaptive(
-              title: const Text('Battery Level'),
-              content: Row(
-                children: [
-                  const Icon(Icons.battery_full, color: Colors.green),
-                  const SizedBox(width: 10),
-                  Text('$batteryLevel%'),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    }, context);
+  _stopEvents() {
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
+    _valueNotifier.value = "";
+  }
+
+  _showSuccess(String message) {
+    InteractiveToast.slide(
+      context,
+      title: Text(message),
+      trailing: const Icon(
+        Icons.check_circle_rounded,
+        color: Colors.green,
+        size: 20,
+      ),
+    );
+  }
+
+  _showError(String message) {
+    InteractiveToast.slide(
+      context,
+      title: Text(message),
+      trailing: const Icon(Icons.warning_rounded, color: Colors.red, size: 20),
+    );
   }
 }
