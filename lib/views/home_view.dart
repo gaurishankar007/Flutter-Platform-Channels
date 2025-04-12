@@ -38,11 +38,11 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
-                final data = await _platformController.greeting();
-                if (data.$1 != null) {
-                  _showSuccess("${data.$1}");
-                } else if (data.$2 != null) {
-                  _showError(data.$2!);
+                final data = await _platformController.greeting("Pigeon");
+                if (data.isNotEmpty) {
+                  _showSuccess(data);
+                } else {
+                  _showError("Error Occurred");
                 }
               },
               child: const Text('Say hello to platform'),
@@ -51,10 +51,10 @@ class _HomeViewState extends State<HomeView> {
             ElevatedButton(
               onPressed: () async {
                 final data = await _platformController.getBatteryLevel();
-                if (data.$1 != null) {
-                  _showSuccess("Battery Level: ${data.$1}");
-                } else if (data.$2 != null) {
-                  _showError(data.$2!);
+                if (data != -1) {
+                  _showSuccess("Battery Level: $data");
+                } else {
+                  _showError("Error Occurred");
                 }
               },
               child: const Text('Show Battery Level'),
@@ -70,7 +70,7 @@ class _HomeViewState extends State<HomeView> {
               builder: (context, value, child) {
                 return RichText(
                   text: TextSpan(
-                    text: "Time:",
+                    text: "Time: ",
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       color: Colors.black,
@@ -102,7 +102,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _receiveEvents() {
-    _streamSubscription = _platformController.getEventStream().listen(
+    _streamSubscription = _platformController.timeUpdatesStream.listen(
       (event) => _valueNotifier.value = event,
     );
   }

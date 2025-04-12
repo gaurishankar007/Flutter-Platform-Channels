@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   flutter_sliding_toast: ^1.4.3
+  pigeon: ^25.3.0
+  build_runner: ^2.4.15
 
 dev_dependencies:
   flutter_test:
