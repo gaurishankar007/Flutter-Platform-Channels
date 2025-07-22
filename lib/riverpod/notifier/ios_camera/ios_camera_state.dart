@@ -48,5 +48,3 @@ class IOSCameraState extends BaseState {
     previewHeight,
   ];
 }
-
-enum IOSCameraStatus { unknown, opening, opened, closing, closed }

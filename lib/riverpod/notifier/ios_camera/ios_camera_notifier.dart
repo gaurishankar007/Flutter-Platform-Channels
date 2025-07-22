@@ -1,5 +1,8 @@
+import 'dart:async' show StreamSubscription;
 import 'dart:developer';
+import 'dart:typed_data' show Uint8List;
 
+import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../config/pigeon/generated/ios_camera_api.dart';
@@ -11,9 +14,8 @@ part 'ios_camera_state.dart';
 class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
   final IOSCameraService _cameraService;
   int cameraIndex = 1;
-  IOSCameraStatus cameraStatus = IOSCameraStatus.unknown;
-  bool isStreamingImage = false;
-  bool isStreamingAudio = false;
+  StreamSubscription<Uint8List>? _imageStreamSubscription;
+  StreamSubscription<Uint8List>? _audioStreamSubscription;
   bool isRecordingVideo = false;
 
   IOSCameraNotifier({required IOSCameraService cameraService})
@@ -33,8 +35,6 @@ class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
       return;
     }
 
-    cameraStatus = IOSCameraStatus.opening;
-
     final request = IOSCameraRequest(
       cameraIndex: cameraIndex,
       videoInputSize: IOSSize(width: 1920, height: 1080),
@@ -52,7 +52,6 @@ class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
       previewWidth: cameraData.videoInputSize.width,
       previewHeight: cameraData.videoInputSize.height,
     );
-    cameraStatus = IOSCameraStatus.opened;
 
     log(
       "videoInputSize:(${cameraData.videoInputSize.width}X${cameraData.videoInputSize.height}),"
@@ -64,7 +63,9 @@ class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
   Future<void> openSetting() async => await openAppSettings();
 
   Future<void> switchCamera() async {
-    if (isStreamingImage || isStreamingAudio || isRecordingVideo) {
+    if (_imageStreamSubscription != null ||
+        _audioStreamSubscription != null ||
+        isRecordingVideo) {
       return;
     }
 
@@ -80,30 +81,34 @@ class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
 
   Future<void> startImageStream() async {
     final dataState = await _cameraService.startImageStream();
-    if (dataState.hasData) isStreamingImage = true;
-
-    _cameraService.imageStream.listen((imageJpeg) {
-      log("Image: ${imageJpeg.length}");
-    });
+    if (dataState.hasData) {
+      _imageStreamSubscription = _cameraService.imageStream.listen((imageJpeg) {
+        log("Image: ${imageJpeg.length}");
+      });
+    }
   }
 
   Future<void> stopImageStream() async {
-    final dataState = await _cameraService.stopImageStream();
-    if (dataState.hasData) isStreamingImage = false;
+    await _cameraService.stopImageStream();
+    _imageStreamSubscription?.cancel();
+    _imageStreamSubscription = null;
   }
 
   Future<void> startAudioStream() async {
     final dataState = await _cameraService.startAudioStream();
-    if (dataState.hasData) isStreamingAudio = true;
-
-    _cameraService.audioStream.listen((audioBytes) {
-      log("Audio: ${audioBytes.length}");
-    });
+    if (dataState.hasData) {
+      _audioStreamSubscription = _cameraService.audioStream.listen((
+        audioBytes,
+      ) {
+        log("Audio: ${audioBytes.length}");
+      });
+    }
   }
 
   Future<void> stopAudioStream() async {
-    final dataState = await _cameraService.stopAudioStream();
-    if (dataState.hasData) isStreamingAudio = false;
+    await _cameraService.stopAudioStream();
+    _audioStreamSubscription?.cancel();
+    _audioStreamSubscription = null;
   }
 
   Future<void> startVideoRecording() async {
@@ -117,15 +122,14 @@ class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
   }
 
   Future<void> closeCamera() async {
-    cameraStatus = IOSCameraStatus.closing;
-
-    if (isStreamingImage) await stopImageStream();
-    if (isStreamingAudio) await stopAudioStream();
+    if (_imageStreamSubscription != null) await stopImageStream();
+    if (_audioStreamSubscription != null) await stopAudioStream();
     if (isRecordingVideo) await stopVideoRecording();
 
     await _cameraService.closeCamera();
 
-    state = state.copyWith(stateStatus: StateStatus.loading);
-    cameraStatus = IOSCameraStatus.closed;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      state = state.copyWith(stateStatus: StateStatus.loading);
+    });
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/utils/base_notifier/base_state_notifier.dart';
-import '../../../riverpod/notifier/ios_camera/ios_camera_notifier.dart';
-import '../../../riverpod/provider/camera_notifier_provider.dart';
+import '../../../../core/utils/base_notifier/base_state_notifier.dart';
+import '../../../../riverpod/notifier/ios_camera/ios_camera_notifier.dart';
+import '../../../../riverpod/provider/camera_notifier_provider.dart';
 
 class IOSCameraWidget extends ConsumerStatefulWidget {
   const IOSCameraWidget({super.key});

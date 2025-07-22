@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/utils/base_notifier/base_state_notifier.dart';
-import '../../../riverpod/notifier/android_camera/android_camera_notifier.dart';
-import '../../../riverpod/provider/camera_notifier_provider.dart';
+import '../../../../core/utils/base_notifier/base_state_notifier.dart';
+import '../../../../riverpod/notifier/android_camera/android_camera_notifier.dart';
+import '../../../../riverpod/provider/camera_notifier_provider.dart';
 
 class AndroidCameraWidget extends ConsumerStatefulWidget {
   const AndroidCameraWidget({super.key});

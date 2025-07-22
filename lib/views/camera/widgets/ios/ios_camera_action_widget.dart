@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../riverpod/provider/camera_notifier_provider.dart';
+import '../../../../riverpod/provider/camera_notifier_provider.dart';
 
-class AndroidCameraActionWidget extends ConsumerWidget {
-  const AndroidCameraActionWidget({super.key});
+class IOSCameraActionWidget extends ConsumerWidget {
+  const IOSCameraActionWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(androidCameraNotifierProvider.notifier);
+    final notifier = ref.read(iosCameraNotifierProvider.notifier);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -71,10 +71,6 @@ class AndroidCameraActionWidget extends ConsumerWidget {
                 child: Text('Switch Camera'),
               ),
               SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: notifier.pickUpVideoLocation,
-                child: Text('Set Video Path'),
-              ),
             ],
           ),
         ),

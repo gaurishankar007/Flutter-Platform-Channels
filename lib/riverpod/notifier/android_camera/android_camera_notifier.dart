@@ -4,6 +4,7 @@ import 'dart:io' show File;
 import 'dart:typed_data';
 import 'dart:ui' show AppLifecycleState;
 
+import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
@@ -245,8 +246,11 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
 
     await _cameraService.closeCamera();
 
-    state = state.copyWith(stateStatus: StateStatus.loading);
     cameraStatus = AndroidCameraStatus.closed;
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      state = state.copyWith(stateStatus: StateStatus.loading);
+    });
   }
 
   // Android: Closes and opens the camera when the app goes in and out of the background
