@@ -46,8 +46,9 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
 
     final request = AndroidCameraRequest(
       cameraIndex: cameraIndex,
-      cameraFrameRate: 30,
-      previewSize: AndroidSize(width: 1920, height: 1080),
+      videoFrameRate: 30,
+      videoSize: AndroidSize(width: 1920, height: 1080),
+      imageStreamFormat: "YUV_420_888",
     );
     final cameraState = await _cameraService.openCamera(request);
     if (cameraState.hasError) return;
@@ -57,8 +58,8 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
       stateStatus: StateStatus.loaded,
       permissionDenied: false,
       textureId: cameraData.textureId,
-      previewWidth: cameraData.previewSize.width,
-      previewHeight: cameraData.previewSize.height,
+      previewWidth: cameraData.videoSize.width,
+      previewHeight: cameraData.videoSize.height,
     );
 
     // Get orientation details
@@ -75,8 +76,8 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
     cameraStatus = AndroidCameraStatus.opened;
 
     log(
-      "PreviewSize:(${cameraData.previewSize.width}X${cameraData.previewSize.height}),"
-      " Fps:${cameraData.frameRate},"
+      "Size:(${cameraData.videoSize.width}X${cameraData.videoSize.height}),"
+      " Fps:${cameraData.videoFrameRate},"
       " supportedSizes:(${cameraData.supportedSizes.map((e) => "${e.width}x${e.height}, ").toString()})"
       " supportedFPS:(${cameraData.supportedFps})",
     );
@@ -105,10 +106,10 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
       final rotationDegrees = dataState.data!.displayOrientationDegrees;
       state = state.copyWith(quarterTurns: (rotationDegrees / 90).toInt());
       log(
-        "isFrontCamera:${dataState.data!.isFrontCamera}"
-        " sensor:${dataState.data!.sensorOrientationDegrees},"
+        "Sensor:${dataState.data!.sensorOrientationDegrees},"
         " device:${dataState.data!.deviceOrientationDegrees},"
-        " display:${dataState.data!.displayOrientationDegrees}.",
+        " display:${dataState.data!.displayOrientationDegrees}."
+        " rotation:${dataState.data!.rotationDegrees}.",
       );
     }
   }
@@ -166,10 +167,7 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
   }
 
   Future<void> startImageStream() async {
-    final request = AndroidImageStreamRequest(
-      frameSkipInterval: 6,
-      imageSize: AndroidSize(width: 1920, height: 1080),
-    );
+    final request = AndroidImageStreamRequest(frameSkipInterval: 6);
     await _cameraService.startImageStream(request);
     _imageStreamSubscription = _cameraService.imageStream.listen((
       cameraImage,
@@ -220,7 +218,6 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
     final fileName = "${DateTime.now().millisecondsSinceEpoch}_video.mp4";
     final request = AndroidVideoRecordRequest(
       filePath: "/storage/emulated/0/Download/$fileName",
-      resolution: AndroidSize(width: 1920, height: 1080),
       encodingBitRate: 10000000, // 10Mbps
       audioChannels: 1,
       audioSampleRate: 48000, // 48KHz
@@ -244,10 +241,12 @@ class AndroidCameraNotifier extends BaseStateNotifier<CameraState> {
     await _audioStreamSubscription?.cancel();
     _audioStreamSubscription = null;
 
+    isVideoRecording = false;
+
     await _cameraService.closeCamera();
 
     cameraStatus = AndroidCameraStatus.closed;
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       state = state.copyWith(stateStatus: StateStatus.loading);
     });

@@ -81,30 +81,34 @@ private fun deepEqualsAndroidCameraApi(a: Any?, b: Any?): Boolean {
 /**
  * Specifies the parameters for opening the camera
  * - [cameraIndex]: Camera selection index (e.g., 0 for back, 1 for front)
- * - [cameraFrameRate]: Frame rate at which the camera session captures the images (e.g., 30, 60)
- * - [previewSize]: Camera preview resolution (e.g., "1920x1080")
+ * - [videoSize]: Resolution for image streaming and video recording. (e.g., "1920x1080")
+ * - [videoFrameRate]: Frame rate at which the camera session captures the images (e.g., 30, 60)
+ * - [imageStreamFormat]: The format at which image will be streamed like "YUV_420_888", "RGB_565", "JPEG",
  *
  * Generated class from Pigeon that represents data sent in messages.
  */
 data class AndroidCameraRequest (
   val cameraIndex: Long,
-  val cameraFrameRate: Long,
-  val previewSize: AndroidSize
+  val videoSize: AndroidSize,
+  val videoFrameRate: Long,
+  val imageStreamFormat: String
 )
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AndroidCameraRequest {
       val cameraIndex = pigeonVar_list[0] as Long
-      val cameraFrameRate = pigeonVar_list[1] as Long
-      val previewSize = pigeonVar_list[2] as AndroidSize
-      return AndroidCameraRequest(cameraIndex, cameraFrameRate, previewSize)
+      val videoSize = pigeonVar_list[1] as AndroidSize
+      val videoFrameRate = pigeonVar_list[2] as Long
+      val imageStreamFormat = pigeonVar_list[3] as String
+      return AndroidCameraRequest(cameraIndex, videoSize, videoFrameRate, imageStreamFormat)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
       cameraIndex,
-      cameraFrameRate,
-      previewSize,
+      videoSize,
+      videoFrameRate,
+      imageStreamFormat,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -122,26 +126,22 @@ data class AndroidCameraRequest (
 /**
  * - [frameSkipInterval]: The interval between sending image frames while streaming image.
  * Camera frame rate = 30fps, [frameSkipInterval] = 2, Image stream rate = 15fps (30 / 2).
- * - [imageSize]: Image size
  *
  * Generated class from Pigeon that represents data sent in messages.
  */
 data class AndroidImageStreamRequest (
-  val frameSkipInterval: Long,
-  val imageSize: AndroidSize
+  val frameSkipInterval: Long
 )
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AndroidImageStreamRequest {
       val frameSkipInterval = pigeonVar_list[0] as Long
-      val imageSize = pigeonVar_list[1] as AndroidSize
-      return AndroidImageStreamRequest(frameSkipInterval, imageSize)
+      return AndroidImageStreamRequest(frameSkipInterval)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
       frameSkipInterval,
-      imageSize,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -194,7 +194,6 @@ data class AndroidAudioStreamRequest (
 
 /**
  * - [filePath]: Path of the video file where it will be saved. e.g. /storage/emulated/0/Download/video.mp4.
- * - [resolution]: Video resolution like 720p, 1080p.
  * - [encodingBitRate]: Data (bits) used to represent the video per second. For 720p = 2-5 Mbps, 1080p = 5-10 Mbps, 2160p = 15-30 Mbps. 1MB = 1000000 Bit
  * - [audioChannels]: Number of audio channels. 1 for mono and 2 for stereo if supported.
  * - [audioSampleRate]: Audio samples are taken per second. 44100 (44.1KHz) or 48000 (48KHz).
@@ -204,7 +203,6 @@ data class AndroidAudioStreamRequest (
  */
 data class AndroidVideoRecordRequest (
   val filePath: String,
-  val resolution: AndroidSize,
   val encodingBitRate: Long,
   val audioChannels: Long,
   val audioSampleRate: Long,
@@ -214,18 +212,16 @@ data class AndroidVideoRecordRequest (
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AndroidVideoRecordRequest {
       val filePath = pigeonVar_list[0] as String
-      val resolution = pigeonVar_list[1] as AndroidSize
-      val encodingBitRate = pigeonVar_list[2] as Long
-      val audioChannels = pigeonVar_list[3] as Long
-      val audioSampleRate = pigeonVar_list[4] as Long
-      val audioEncodingBitRate = pigeonVar_list[5] as Long
-      return AndroidVideoRecordRequest(filePath, resolution, encodingBitRate, audioChannels, audioSampleRate, audioEncodingBitRate)
+      val encodingBitRate = pigeonVar_list[1] as Long
+      val audioChannels = pigeonVar_list[2] as Long
+      val audioSampleRate = pigeonVar_list[3] as Long
+      val audioEncodingBitRate = pigeonVar_list[4] as Long
+      return AndroidVideoRecordRequest(filePath, encodingBitRate, audioChannels, audioSampleRate, audioEncodingBitRate)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
       filePath,
-      resolution,
       encodingBitRate,
       audioChannels,
       audioSampleRate,
@@ -246,36 +242,37 @@ data class AndroidVideoRecordRequest (
 
 /**
  * Stores the camera data while opening the camera
- * - [frameRate]: Frame rate at which the camera session captures the images.
  * - [textureId]: Surface texture id.
- * - [previewSize]: Camera preview size.
- * - [supportedSizes]: Supported sizes by the camera device.
+ * - [videoSize]: Resolution for image streaming and video recording.
+ * - [videoFrameRate]: Frame rate at which the camera session captures the images.
+ * - [supportedSizes]: Supported resolutions by the camera device.
+ * - [supportedFps]: Supported frame rates by the camera device.
  *
  * Generated class from Pigeon that represents data sent in messages.
  */
 data class AndroidCameraData (
-  val frameRate: Long,
   val textureId: Long,
-  val previewSize: AndroidSize,
+  val videoSize: AndroidSize,
+  val videoFrameRate: Long,
   val supportedSizes: List<AndroidSize>,
   val supportedFps: List<Long>
 )
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AndroidCameraData {
-      val frameRate = pigeonVar_list[0] as Long
-      val textureId = pigeonVar_list[1] as Long
-      val previewSize = pigeonVar_list[2] as AndroidSize
+      val textureId = pigeonVar_list[0] as Long
+      val videoSize = pigeonVar_list[1] as AndroidSize
+      val videoFrameRate = pigeonVar_list[2] as Long
       val supportedSizes = pigeonVar_list[3] as List<AndroidSize>
       val supportedFps = pigeonVar_list[4] as List<Long>
-      return AndroidCameraData(frameRate, textureId, previewSize, supportedSizes, supportedFps)
+      return AndroidCameraData(textureId, videoSize, videoFrameRate, supportedSizes, supportedFps)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
-      frameRate,
       textureId,
-      previewSize,
+      videoSize,
+      videoFrameRate,
       supportedSizes,
       supportedFps,
     )
@@ -294,7 +291,6 @@ data class AndroidCameraData (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class AndroidOrientationData (
-  val isFrontCamera: Boolean,
   val sensorOrientationDegrees: Long,
   val deviceOrientationDegrees: Long,
   val displayOrientationDegrees: Long,
@@ -303,17 +299,15 @@ data class AndroidOrientationData (
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AndroidOrientationData {
-      val isFrontCamera = pigeonVar_list[0] as Boolean
-      val sensorOrientationDegrees = pigeonVar_list[1] as Long
-      val deviceOrientationDegrees = pigeonVar_list[2] as Long
-      val displayOrientationDegrees = pigeonVar_list[3] as Long
-      val rotationDegrees = pigeonVar_list[4] as Long
-      return AndroidOrientationData(isFrontCamera, sensorOrientationDegrees, deviceOrientationDegrees, displayOrientationDegrees, rotationDegrees)
+      val sensorOrientationDegrees = pigeonVar_list[0] as Long
+      val deviceOrientationDegrees = pigeonVar_list[1] as Long
+      val displayOrientationDegrees = pigeonVar_list[2] as Long
+      val rotationDegrees = pigeonVar_list[3] as Long
+      return AndroidOrientationData(sensorOrientationDegrees, deviceOrientationDegrees, displayOrientationDegrees, rotationDegrees)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
-      isFrontCamera,
       sensorOrientationDegrees,
       deviceOrientationDegrees,
       displayOrientationDegrees,

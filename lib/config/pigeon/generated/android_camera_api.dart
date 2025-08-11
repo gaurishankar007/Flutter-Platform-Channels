@@ -15,11 +15,7 @@ PlatformException _createConnectionError(String channelName) {
   );
 }
 
-List<Object?> wrapResponse({
-  Object? result,
-  PlatformException? error,
-  bool empty = false,
-}) {
+List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
     return <Object?>[];
   }
@@ -28,56 +24,61 @@ List<Object?> wrapResponse({
   }
   return <Object?>[error.code, error.message, error.details];
 }
-
 bool _deepEquals(Object? a, Object? b) {
   if (a is List && b is List) {
     return a.length == b.length &&
-        a.indexed.every(
-          ((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]),
-        );
+        a.indexed
+        .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
-    return a.length == b.length &&
-        a.entries.every(
-          (MapEntry<Object?, Object?> entry) =>
-              (b as Map<Object?, Object?>).containsKey(entry.key) &&
-              _deepEquals(entry.value, b[entry.key]),
-        );
+    return a.length == b.length && a.entries.every((MapEntry<Object?, Object?> entry) =>
+        (b as Map<Object?, Object?>).containsKey(entry.key) &&
+        _deepEquals(entry.value, b[entry.key]));
   }
   return a == b;
 }
 
+
 /// Specifies the parameters for opening the camera
 /// - [cameraIndex]: Camera selection index (e.g., 0 for back, 1 for front)
-/// - [cameraFrameRate]: Frame rate at which the camera session captures the images (e.g., 30, 60)
-/// - [previewSize]: Camera preview resolution (e.g., "1920x1080")
+/// - [videoSize]: Resolution for image streaming and video recording. (e.g., "1920x1080")
+/// - [videoFrameRate]: Frame rate at which the camera session captures the images (e.g., 30, 60)
+/// - [imageStreamFormat]: The format at which image will be streamed like "YUV_420_888", "RGB_565", "JPEG",
 class AndroidCameraRequest {
   AndroidCameraRequest({
     required this.cameraIndex,
-    required this.cameraFrameRate,
-    required this.previewSize,
+    required this.videoSize,
+    required this.videoFrameRate,
+    required this.imageStreamFormat,
   });
 
   int cameraIndex;
 
-  int cameraFrameRate;
+  AndroidSize videoSize;
 
-  AndroidSize previewSize;
+  int videoFrameRate;
+
+  String imageStreamFormat;
 
   List<Object?> _toList() {
-    return <Object?>[cameraIndex, cameraFrameRate, previewSize];
+    return <Object?>[
+      cameraIndex,
+      videoSize,
+      videoFrameRate,
+      imageStreamFormat,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidCameraRequest decode(Object result) {
     result as List<Object?>;
     return AndroidCameraRequest(
       cameraIndex: result[0]! as int,
-      cameraFrameRate: result[1]! as int,
-      previewSize: result[2]! as AndroidSize,
+      videoSize: result[1]! as AndroidSize,
+      videoFrameRate: result[2]! as int,
+      imageStreamFormat: result[3]! as String,
     );
   }
 
@@ -95,43 +96,39 @@ class AndroidCameraRequest {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 /// - [frameSkipInterval]: The interval between sending image frames while streaming image.
 /// Camera frame rate = 30fps, [frameSkipInterval] = 2, Image stream rate = 15fps (30 / 2).
-/// - [imageSize]: Image size
 class AndroidImageStreamRequest {
   AndroidImageStreamRequest({
     required this.frameSkipInterval,
-    required this.imageSize,
   });
 
   int frameSkipInterval;
 
-  AndroidSize imageSize;
-
   List<Object?> _toList() {
-    return <Object?>[frameSkipInterval, imageSize];
+    return <Object?>[
+      frameSkipInterval,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidImageStreamRequest decode(Object result) {
     result as List<Object?>;
     return AndroidImageStreamRequest(
       frameSkipInterval: result[0]! as int,
-      imageSize: result[1]! as AndroidSize,
     );
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is! AndroidImageStreamRequest ||
-        other.runtimeType != runtimeType) {
+    if (other is! AndroidImageStreamRequest || other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
@@ -142,7 +139,8 @@ class AndroidImageStreamRequest {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 /// - [bufferSizeKB]: The size of the audio bytes in KB which will be steamed. e.g. 8KB = 8x1024 bytes.
@@ -158,12 +156,14 @@ class AndroidAudioStreamRequest {
   int sampleRate;
 
   List<Object?> _toList() {
-    return <Object?>[bufferSizeKB, sampleRate];
+    return <Object?>[
+      bufferSizeKB,
+      sampleRate,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidAudioStreamRequest decode(Object result) {
     result as List<Object?>;
@@ -176,8 +176,7 @@ class AndroidAudioStreamRequest {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is! AndroidAudioStreamRequest ||
-        other.runtimeType != runtimeType) {
+    if (other is! AndroidAudioStreamRequest || other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
@@ -188,11 +187,11 @@ class AndroidAudioStreamRequest {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 /// - [filePath]: Path of the video file where it will be saved. e.g. /storage/emulated/0/Download/video.mp4.
-/// - [resolution]: Video resolution like 720p, 1080p.
 /// - [encodingBitRate]: Data (bits) used to represent the video per second. For 720p = 2-5 Mbps, 1080p = 5-10 Mbps, 2160p = 15-30 Mbps. 1MB = 1000000 Bit
 /// - [audioChannels]: Number of audio channels. 1 for mono and 2 for stereo if supported.
 /// - [audioSampleRate]: Audio samples are taken per second. 44100 (44.1KHz) or 48000 (48KHz).
@@ -200,7 +199,6 @@ class AndroidAudioStreamRequest {
 class AndroidVideoRecordRequest {
   AndroidVideoRecordRequest({
     required this.filePath,
-    required this.resolution,
     required this.encodingBitRate,
     required this.audioChannels,
     required this.audioSampleRate,
@@ -208,8 +206,6 @@ class AndroidVideoRecordRequest {
   });
 
   String filePath;
-
-  AndroidSize resolution;
 
   int encodingBitRate;
 
@@ -222,7 +218,6 @@ class AndroidVideoRecordRequest {
   List<Object?> _toList() {
     return <Object?>[
       filePath,
-      resolution,
       encodingBitRate,
       audioChannels,
       audioSampleRate,
@@ -231,26 +226,23 @@ class AndroidVideoRecordRequest {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidVideoRecordRequest decode(Object result) {
     result as List<Object?>;
     return AndroidVideoRecordRequest(
       filePath: result[0]! as String,
-      resolution: result[1]! as AndroidSize,
-      encodingBitRate: result[2]! as int,
-      audioChannels: result[3]! as int,
-      audioSampleRate: result[4]! as int,
-      audioEncodingBitRate: result[5]! as int,
+      encodingBitRate: result[1]! as int,
+      audioChannels: result[2]! as int,
+      audioSampleRate: result[3]! as int,
+      audioEncodingBitRate: result[4]! as int,
     );
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is! AndroidVideoRecordRequest ||
-        other.runtimeType != runtimeType) {
+    if (other is! AndroidVideoRecordRequest || other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
@@ -261,28 +253,30 @@ class AndroidVideoRecordRequest {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 /// Stores the camera data while opening the camera
-/// - [frameRate]: Frame rate at which the camera session captures the images.
 /// - [textureId]: Surface texture id.
-/// - [previewSize]: Camera preview size.
-/// - [supportedSizes]: Supported sizes by the camera device.
+/// - [videoSize]: Resolution for image streaming and video recording.
+/// - [videoFrameRate]: Frame rate at which the camera session captures the images.
+/// - [supportedSizes]: Supported resolutions by the camera device.
+/// - [supportedFps]: Supported frame rates by the camera device.
 class AndroidCameraData {
   AndroidCameraData({
-    required this.frameRate,
     required this.textureId,
-    required this.previewSize,
+    required this.videoSize,
+    required this.videoFrameRate,
     required this.supportedSizes,
     required this.supportedFps,
   });
 
-  int frameRate;
-
   int textureId;
 
-  AndroidSize previewSize;
+  AndroidSize videoSize;
+
+  int videoFrameRate;
 
   List<AndroidSize> supportedSizes;
 
@@ -290,24 +284,23 @@ class AndroidCameraData {
 
   List<Object?> _toList() {
     return <Object?>[
-      frameRate,
       textureId,
-      previewSize,
+      videoSize,
+      videoFrameRate,
       supportedSizes,
       supportedFps,
     ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidCameraData decode(Object result) {
     result as List<Object?>;
     return AndroidCameraData(
-      frameRate: result[0]! as int,
-      textureId: result[1]! as int,
-      previewSize: result[2]! as AndroidSize,
+      textureId: result[0]! as int,
+      videoSize: result[1]! as AndroidSize,
+      videoFrameRate: result[2]! as int,
       supportedSizes: (result[3] as List<Object?>?)!.cast<AndroidSize>(),
       supportedFps: (result[4] as List<Object?>?)!.cast<int>(),
     );
@@ -327,19 +320,17 @@ class AndroidCameraData {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class AndroidOrientationData {
   AndroidOrientationData({
-    required this.isFrontCamera,
     required this.sensorOrientationDegrees,
     required this.deviceOrientationDegrees,
     required this.displayOrientationDegrees,
     required this.rotationDegrees,
   });
-
-  bool isFrontCamera;
 
   int sensorOrientationDegrees;
 
@@ -351,7 +342,6 @@ class AndroidOrientationData {
 
   List<Object?> _toList() {
     return <Object?>[
-      isFrontCamera,
       sensorOrientationDegrees,
       deviceOrientationDegrees,
       displayOrientationDegrees,
@@ -360,17 +350,15 @@ class AndroidOrientationData {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidOrientationData decode(Object result) {
     result as List<Object?>;
     return AndroidOrientationData(
-      isFrontCamera: result[0]! as bool,
-      sensorOrientationDegrees: result[1]! as int,
-      deviceOrientationDegrees: result[2]! as int,
-      displayOrientationDegrees: result[3]! as int,
-      rotationDegrees: result[4]! as int,
+      sensorOrientationDegrees: result[0]! as int,
+      deviceOrientationDegrees: result[1]! as int,
+      displayOrientationDegrees: result[2]! as int,
+      rotationDegrees: result[3]! as int,
     );
   }
 
@@ -388,7 +376,8 @@ class AndroidOrientationData {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class AndroidImagePlaneData {
@@ -405,12 +394,15 @@ class AndroidImagePlaneData {
   int pixelStride;
 
   List<Object?> _toList() {
-    return <Object?>[bytes, rowStride, pixelStride];
+    return <Object?>[
+      bytes,
+      rowStride,
+      pixelStride,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidImagePlaneData decode(Object result) {
     result as List<Object?>;
@@ -435,7 +427,8 @@ class AndroidImagePlaneData {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class AndroidCameraImageData {
@@ -458,12 +451,17 @@ class AndroidCameraImageData {
   int rotationDegrees;
 
   List<Object?> _toList() {
-    return <Object?>[width, height, format, planes, rotationDegrees];
+    return <Object?>[
+      width,
+      height,
+      format,
+      planes,
+      rotationDegrees,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidCameraImageData decode(Object result) {
     result as List<Object?>;
@@ -490,23 +488,29 @@ class AndroidCameraImageData {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class AndroidSize {
-  AndroidSize({required this.width, required this.height});
+  AndroidSize({
+    required this.width,
+    required this.height,
+  });
 
   double width;
 
   double height;
 
   List<Object?> _toList() {
-    return <Object?>[width, height];
+    return <Object?>[
+      width,
+      height,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidSize decode(Object result) {
     result as List<Object?>;
@@ -530,27 +534,36 @@ class AndroidSize {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class AndroidRangeInt {
-  AndroidRangeInt({required this.lower, required this.upper});
+  AndroidRangeInt({
+    required this.lower,
+    required this.upper,
+  });
 
   int lower;
 
   int upper;
 
   List<Object?> _toList() {
-    return <Object?>[lower, upper];
+    return <Object?>[
+      lower,
+      upper,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static AndroidRangeInt decode(Object result) {
     result as List<Object?>;
-    return AndroidRangeInt(lower: result[0]! as int, upper: result[1]! as int);
+    return AndroidRangeInt(
+      lower: result[0]! as int,
+      upper: result[1]! as int,
+    );
   }
 
   @override
@@ -567,8 +580,10 @@ class AndroidRangeInt {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
+
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -577,34 +592,34 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is AndroidCameraRequest) {
+    }    else if (value is AndroidCameraRequest) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidImageStreamRequest) {
+    }    else if (value is AndroidImageStreamRequest) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidAudioStreamRequest) {
+    }    else if (value is AndroidAudioStreamRequest) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidVideoRecordRequest) {
+    }    else if (value is AndroidVideoRecordRequest) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidCameraData) {
+    }    else if (value is AndroidCameraData) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidOrientationData) {
+    }    else if (value is AndroidOrientationData) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidImagePlaneData) {
+    }    else if (value is AndroidImagePlaneData) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidCameraImageData) {
+    }    else if (value is AndroidCameraImageData) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidSize) {
+    }    else if (value is AndroidSize) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    } else if (value is AndroidRangeInt) {
+    }    else if (value is AndroidRangeInt) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
     } else {
@@ -615,25 +630,25 @@ class _PigeonCodec extends StandardMessageCodec {
   @override
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
-      case 129:
+      case 129: 
         return AndroidCameraRequest.decode(readValue(buffer)!);
-      case 130:
+      case 130: 
         return AndroidImageStreamRequest.decode(readValue(buffer)!);
-      case 131:
+      case 131: 
         return AndroidAudioStreamRequest.decode(readValue(buffer)!);
-      case 132:
+      case 132: 
         return AndroidVideoRecordRequest.decode(readValue(buffer)!);
-      case 133:
+      case 133: 
         return AndroidCameraData.decode(readValue(buffer)!);
-      case 134:
+      case 134: 
         return AndroidOrientationData.decode(readValue(buffer)!);
-      case 135:
+      case 135: 
         return AndroidImagePlaneData.decode(readValue(buffer)!);
-      case 136:
+      case 136: 
         return AndroidCameraImageData.decode(readValue(buffer)!);
-      case 137:
+      case 137: 
         return AndroidSize.decode(readValue(buffer)!);
-      case 138:
+      case 138: 
         return AndroidRangeInt.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -645,12 +660,9 @@ class AndroidCameraHostApi {
   /// Constructor for [AndroidCameraHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  AndroidCameraHostApi({
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) : pigeonVar_binaryMessenger = binaryMessenger,
-       pigeonVar_messageChannelSuffix =
-           messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  AndroidCameraHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -658,17 +670,13 @@ class AndroidCameraHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<AndroidCameraData> openCamera(AndroidCameraRequest request) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.openCamera$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[request],
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.openCamera$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
     );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[request]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -690,14 +698,12 @@ class AndroidCameraHostApi {
   }
 
   Future<AndroidOrientationData> getOrientationData() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.getOrientationData$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.getOrientationData$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -720,17 +726,13 @@ class AndroidCameraHostApi {
   }
 
   Future<void> startImageStream(AndroidImageStreamRequest request) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.startImageStream$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[request],
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.startImageStream$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
     );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[request]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -747,14 +749,12 @@ class AndroidCameraHostApi {
   }
 
   Future<void> stopImageStream() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.stopImageStream$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.stopImageStream$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -772,17 +772,13 @@ class AndroidCameraHostApi {
   }
 
   Future<void> startAudioStream(AndroidAudioStreamRequest request) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.startAudioStream$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[request],
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.startAudioStream$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
     );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[request]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -799,14 +795,12 @@ class AndroidCameraHostApi {
   }
 
   Future<void> stopAudioStream() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.stopAudioStream$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.stopAudioStream$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -824,17 +818,13 @@ class AndroidCameraHostApi {
   }
 
   Future<void> startVideoRecording(AndroidVideoRecordRequest request) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.startVideoRecording$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[request],
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.startVideoRecording$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
     );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[request]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -851,14 +841,12 @@ class AndroidCameraHostApi {
   }
 
   Future<void> stopVideoRecording() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.stopVideoRecording$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.stopVideoRecording$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -876,14 +864,12 @@ class AndroidCameraHostApi {
   }
 
   Future<void> closeCamera() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.closeCamera$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.AndroidCameraHostApi.closeCamera$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -910,78 +896,54 @@ abstract class AndroidCameraFlutterApi {
   /// Receives audio bytes from the microphone while streaming audio.
   void onAudioReceived(Uint8List audioBytes);
 
-  static void setUp(
-    AndroidCameraFlutterApi? api, {
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) {
-    messageChannelSuffix =
-        messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  static void setUp(AndroidCameraFlutterApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
-      final BasicMessageChannel<Object?>
-      pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onImageReceived$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onImageReceived$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(
-            message != null,
-            'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onImageReceived was null.',
-          );
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onImageReceived was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final AndroidCameraImageData? arg_cameraImage =
-              (args[0] as AndroidCameraImageData?);
-          assert(
-            arg_cameraImage != null,
-            'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onImageReceived was null, expected non-null AndroidCameraImageData.',
-          );
+          final AndroidCameraImageData? arg_cameraImage = (args[0] as AndroidCameraImageData?);
+          assert(arg_cameraImage != null,
+              'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onImageReceived was null, expected non-null AndroidCameraImageData.');
           try {
             api.onImageReceived(arg_cameraImage!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?>
-      pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onAudioReceived$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onAudioReceived$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(
-            message != null,
-            'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onAudioReceived was null.',
-          );
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onAudioReceived was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final Uint8List? arg_audioBytes = (args[0] as Uint8List?);
-          assert(
-            arg_audioBytes != null,
-            'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onAudioReceived was null, expected non-null Uint8List.',
-          );
+          assert(arg_audioBytes != null,
+              'Argument for dev.flutter.pigeon.com.platform.channel.AndroidCameraFlutterApi.onAudioReceived was null, expected non-null Uint8List.');
           try {
             api.onAudioReceived(arg_audioBytes!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
