@@ -191,7 +191,7 @@ class WebCameraServiceImpl implements WebCameraService {
         _imageStreamController.add(imageBytes);
       });
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -209,7 +209,7 @@ class WebCameraServiceImpl implements WebCameraService {
       _frameTimer = null;
       _canvasElement = null;
       _canvasContext = null;
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -259,7 +259,7 @@ class WebCameraServiceImpl implements WebCameraService {
       source.connect(_scriptProcessor!);
       _scriptProcessor!.connect(_audioContext!.destination);
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -275,7 +275,7 @@ class WebCameraServiceImpl implements WebCameraService {
       _audioContext?.close();
       _audioContext = null;
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -312,7 +312,7 @@ class WebCameraServiceImpl implements WebCameraService {
       _mediaRecorder!.addEventListener('dataavailable', callback.toJS);
       _mediaRecorder!.start();
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -326,7 +326,7 @@ class WebCameraServiceImpl implements WebCameraService {
       // A completer to wait for the 'stop' event is called on the media recorder.
       final completer = Completer<DataState<Null>>();
       void callback(web.Event event) {
-        completer.complete(SuccessNullState());
+        completer.complete(SuccessState.nil);
       }
 
       _mediaRecorder?.addEventListener('stop', callback.toJS);
@@ -361,7 +361,7 @@ class WebCameraServiceImpl implements WebCameraService {
       // Revoke URL to free memory
       web.URL.revokeObjectURL(url);
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -381,7 +381,7 @@ class WebCameraServiceImpl implements WebCameraService {
       _videoElement?.remove();
       _videoElement = null;
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 }

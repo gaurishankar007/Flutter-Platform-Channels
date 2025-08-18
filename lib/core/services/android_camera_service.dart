@@ -93,7 +93,7 @@ class AndroidCameraServiceImpl implements AndroidCameraService {
   FutureNull startImageStream(AndroidImageStreamRequest request) {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.startImageStream(request);
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -105,7 +105,7 @@ class AndroidCameraServiceImpl implements AndroidCameraService {
   FutureNull stopImageStream() {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.stopImageStream();
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -113,7 +113,7 @@ class AndroidCameraServiceImpl implements AndroidCameraService {
   FutureNull startAudioStream(AndroidAudioStreamRequest request) {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.startAudioStream(request);
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -124,7 +124,7 @@ class AndroidCameraServiceImpl implements AndroidCameraService {
   FutureNull stopAudioStream() {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.stopAudioStream();
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -132,7 +132,7 @@ class AndroidCameraServiceImpl implements AndroidCameraService {
   FutureNull startVideoRecording(AndroidVideoRecordRequest request) {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.startVideoRecording(request);
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -140,7 +140,7 @@ class AndroidCameraServiceImpl implements AndroidCameraService {
   FutureNull stopVideoRecording() {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.stopVideoRecording();
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -148,7 +148,7 @@ class AndroidCameraServiceImpl implements AndroidCameraService {
   FutureNull closeCamera() {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.closeCamera();
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 }

@@ -111,6 +111,16 @@ class CameraUtil {
         }
     }
 
+    /**
+     * Gets the failure result dynamically.
+     */
+    fun <T> getFailureResult(message: String, error: Exception? = null): Result<T> {
+        return Result.failure(RuntimeException(message, error))
+    }
+
+    /**
+     * Removes camera device information like resolutions, frame rates.
+     */
     fun clearCameraDetails() {
         context = null
         cameraCharacteristics = null

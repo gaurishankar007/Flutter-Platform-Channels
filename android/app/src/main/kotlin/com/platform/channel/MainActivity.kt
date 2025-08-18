@@ -130,7 +130,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
                 null
             )
         } catch (e: Exception) {
-            callback(getFailureResult("CAMERA_ERROR: Failed to configure camera.", e))
+            callback(cameraUtil.getFailureResult("CAMERA_ERROR: Failed to configure camera.", e))
         }
     }
 
@@ -139,7 +139,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
             val orientationData = cameraUtil.getOrientationData()
             callback(Result.success(orientationData))
         } catch (e: Exception) {
-            callback(getFailureResult("ERROR: Failed to get orientation data.", e))
+            callback(cameraUtil.getFailureResult("ERROR: Failed to get orientation data.", e))
         }
     }
 
@@ -160,7 +160,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
 
             callback(Result.success(Unit))
         } catch (e: Exception) {
-            callback(getFailureResult("IMAGE_READER_ERROR: Failed to start image stream.", e))
+            callback(cameraUtil.getFailureResult("IMAGE_READER_ERROR: Failed to start image stream.", e))
         }
     }
 
@@ -171,7 +171,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
 
             callback(Result.success(Unit))
         } catch (e: Exception) {
-            callback(getFailureResult("IMAGE_READER_ERROR: Failed to stop image stream.", e))
+            callback(cameraUtil.getFailureResult("IMAGE_READER_ERROR: Failed to stop image stream.", e))
         }
     }
 
@@ -183,7 +183,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
             // Check for permission
             val recordAudioPermission = checkSelfPermission(Manifest.permission.RECORD_AUDIO)
             if (recordAudioPermission != PackageManager.PERMISSION_GRANTED) {
-                callback(getFailureResult("Camera permission not granted."))
+                callback(cameraUtil.getFailureResult("Camera permission not granted."))
                 return
             }
 
@@ -198,7 +198,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
 
             callback(Result.success(Unit))
         } catch (e: Exception) {
-            callback(getFailureResult("AUDIO_RECORD_ERROR: Failed to start audio stream.", e))
+            callback(cameraUtil.getFailureResult("AUDIO_RECORD_ERROR: Failed to start audio stream.", e))
         }
     }
 
@@ -207,7 +207,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
             audioStreamHandler.stopStream(handler!!)
             callback(Result.success(Unit))
         } catch (e: Exception) {
-            callback(getFailureResult("AUDIO_RECORD_ERROR: Failed to stop audio stream.", e))
+            callback(cameraUtil.getFailureResult("AUDIO_RECORD_ERROR: Failed to stop audio stream.", e))
         }
     }
 
@@ -233,7 +233,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
                 }
             }
         } catch (e: Exception) {
-            callback(getFailureResult("MEDIA_RECORD_ERROR: Failed to start media recorder.", e))
+            callback(cameraUtil.getFailureResult("MEDIA_RECORD_ERROR: Failed to start media recorder.", e))
         }
     }
 
@@ -248,7 +248,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
                 }
             }
         } catch (e: Exception) {
-            callback(getFailureResult("MEDIA_RECORD_ERROR: Failed to stop media recorder.", e))
+            callback(cameraUtil.getFailureResult("MEDIA_RECORD_ERROR: Failed to stop media recorder.", e))
         }
     }
 
@@ -272,7 +272,7 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
 
             callback(Result.success(Unit))
         } catch (e: Exception) {
-            callback(getFailureResult("DISPOSE_ERROR: Failed to dispose camera", e))
+            callback(cameraUtil.getFailureResult("DISPOSE_ERROR: Failed to dispose camera", e))
         }
     }
 
@@ -374,9 +374,5 @@ class MainActivity : FlutterActivity(), AndroidCameraHostApi {
         cameraCaptureSession?.abortCaptures()
         cameraCaptureSession?.close()
         cameraCaptureSession = null
-    }
-
-    private fun <T> getFailureResult(message: String, error: Exception? = null): Result<T> {
-        return Result.failure(RuntimeException(message, error))
     }
 }
