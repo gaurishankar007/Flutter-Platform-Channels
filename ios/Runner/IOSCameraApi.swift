@@ -177,6 +177,7 @@ struct IOSCameraRequest: Hashable {
 /// - [videoInputSize]: Camera capture resolution
 /// - [videoInputFrameRate]: Camera capture frame rate
 /// - [supportedSizes]: Supported sizes along with it's frame rates by the camera device.
+/// - [rotationDegrees]: Camera preview rotation degrees for accurate preview.
 ///
 /// Generated class from Pigeon that represents data sent in messages.
 struct IOSCameraData: Hashable {
@@ -184,6 +185,7 @@ struct IOSCameraData: Hashable {
   var videoInputSize: IOSSize
   var videoInputFrameRate: Int64
   var supportedSizes: [IOSCameraSize]
+  var rotationDegrees: Int64
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -192,12 +194,14 @@ struct IOSCameraData: Hashable {
     let videoInputSize = pigeonVar_list[1] as! IOSSize
     let videoInputFrameRate = pigeonVar_list[2] as! Int64
     let supportedSizes = pigeonVar_list[3] as! [IOSCameraSize]
+    let rotationDegrees = pigeonVar_list[4] as! Int64
 
     return IOSCameraData(
       textureId: textureId,
       videoInputSize: videoInputSize,
       videoInputFrameRate: videoInputFrameRate,
-      supportedSizes: supportedSizes
+      supportedSizes: supportedSizes,
+      rotationDegrees: rotationDegrees
     )
   }
   func toList() -> [Any?] {
@@ -206,6 +210,7 @@ struct IOSCameraData: Hashable {
       videoInputSize,
       videoInputFrameRate,
       supportedSizes,
+      rotationDegrees,
     ]
   }
   static func == (lhs: IOSCameraData, rhs: IOSCameraData) -> Bool {
@@ -372,7 +377,7 @@ protocol IOSCameraHostApi {
   func requestCameraAccess(completion: @escaping (Result<Bool, Error>) -> Void)
   func requestMicrophoneAccess(completion: @escaping (Result<Bool, Error>) -> Void)
   func openCamera(request: IOSCameraRequest, completion: @escaping (Result<IOSCameraData, Error>) -> Void)
-  func updateCameraVideoOutputOrientation(completion: @escaping (Result<Bool, Error>) -> Void)
+  func updateCameraVideoOutputOrientation(completion: @escaping (Result<Int64, Error>) -> Void)
   func startVideoRecording(completion: @escaping (Result<Bool, Error>) -> Void)
   func stopVideoRecording(completion: @escaping (Result<Bool, Error>) -> Void)
   func closeCamera(completion: @escaping (Result<Bool, Error>) -> Void)

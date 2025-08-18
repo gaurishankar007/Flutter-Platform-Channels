@@ -8,7 +8,14 @@ class IOSCameraActionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isPermissionDenied = ref.watch(
+      iosCameraNotifierProvider.select((state) => state.permissionDenied),
+    );
     final notifier = ref.read(iosCameraNotifierProvider.notifier);
+
+    if (isPermissionDenied) {
+      return Text("Permission Denied");
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,

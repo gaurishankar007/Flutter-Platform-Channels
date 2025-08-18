@@ -22,7 +22,7 @@ abstract class IOSCameraHostApi {
   IOSCameraData openCamera(IOSCameraRequest request);
 
   @async
-  bool updateCameraVideoOutputOrientation();
+  int updateCameraVideoOutputOrientation();
 
   @async
   bool startVideoRecording();
@@ -59,17 +59,20 @@ class IOSCameraRequest {
 /// - [videoInputSize]: Camera capture resolution
 /// - [videoInputFrameRate]: Camera capture frame rate
 /// - [supportedSizes]: Supported sizes along with it's frame rates by the camera device.
+/// - [rotationDegrees]: Camera preview rotation degrees for accurate preview.
 class IOSCameraData {
   final int textureId;
   final IOSSize videoInputSize;
   final int videoInputFrameRate;
   final List<IOSCameraSize> supportedSizes;
+  final int rotationDegrees;
 
   const IOSCameraData({
     required this.textureId,
     required this.videoInputSize,
     required this.videoInputFrameRate,
     required this.supportedSizes,
+    required this.rotationDegrees,
   });
 }
 

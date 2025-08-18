@@ -41,12 +41,6 @@ class _CameraPreviewWidgetState extends ConsumerState<IOSCameraWidget> {
     super.dispose();
   }
 
-  double getAspectRatio({required double width, required double height}) {
-    return orientation == Orientation.portrait
-        ? height / width
-        : width / height;
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(iosCameraNotifierProvider);
@@ -69,12 +63,12 @@ class _CameraPreviewWidgetState extends ConsumerState<IOSCameraWidget> {
       );
     }
 
-    return AspectRatio(
-      aspectRatio: getAspectRatio(
-        width: state.previewWidth,
-        height: state.previewHeight,
+    return RotatedBox(
+      quarterTurns: state.quarterTurns,
+      child: AspectRatio(
+        aspectRatio: state.previewWidth / state.previewHeight,
+        child: Texture(textureId: state.textureId),
       ),
-      child: Texture(textureId: state.textureId),
     );
   }
 }

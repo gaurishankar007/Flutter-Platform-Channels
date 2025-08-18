@@ -5,6 +5,7 @@ class IOSCameraState extends BaseState {
   final int textureId;
   final double previewWidth;
   final double previewHeight;
+  final int quarterTurns;
 
   const IOSCameraState({
     super.stateStatus,
@@ -13,6 +14,7 @@ class IOSCameraState extends BaseState {
     required this.textureId,
     required this.previewWidth,
     required this.previewHeight,
+    required this.quarterTurns,
   });
 
   const IOSCameraState.initial()
@@ -20,6 +22,7 @@ class IOSCameraState extends BaseState {
       textureId = -1,
       previewWidth = 0,
       previewHeight = 0,
+      quarterTurns = 0,
       super(stateStatus: StateStatus.loading);
 
   IOSCameraState copyWith({
@@ -28,6 +31,7 @@ class IOSCameraState extends BaseState {
     int? textureId,
     double? previewWidth,
     double? previewHeight,
+    int? quarterTurns,
   }) {
     return IOSCameraState(
       stateStatus: stateStatus ?? this.stateStatus,
@@ -35,6 +39,7 @@ class IOSCameraState extends BaseState {
       textureId: textureId ?? this.textureId,
       previewWidth: previewWidth ?? this.previewWidth,
       previewHeight: previewHeight ?? this.previewHeight,
+      quarterTurns: quarterTurns ?? this.quarterTurns,
     );
   }
 
@@ -46,5 +51,6 @@ class IOSCameraState extends BaseState {
     textureId,
     previewWidth,
     previewHeight,
+    quarterTurns,
   ];
 }

@@ -11,7 +11,7 @@ import '../utils/type_defs.dart';
 abstract class IOSCameraService {
   FutureBool checkCameraPermissions();
   FutureData<IOSCameraData> openCamera(IOSCameraRequest request);
-  FutureNull updateCameraVideoOutputOrientation();
+  FutureInt updateCameraVideoOutputOrientation();
   FutureNull startImageStream();
   Stream<Uint8List> get imageStream;
   FutureNull stopImageStream();
@@ -33,11 +33,11 @@ abstract class IOSCameraHostApiModule {
 class IOSCameraServiceImpl implements IOSCameraService {
   final IOSCameraHostApi _cameraHostApi;
 
-  final _imageStreamChannel = EventChannel("com.platform.channel/image_stream");
+  final _imageStreamChannel = EventChannel("app.vaiolin.ai/image_stream");
   final _imageStreamController = StreamController<Uint8List>.broadcast();
   StreamSubscription? _imageStreamSubscription;
 
-  final _audioStreamChannel = EventChannel("com.platform.channel/audio_stream");
+  final _audioStreamChannel = EventChannel("app.vaiolin.ai/audio_stream");
   final _audioStreamController = StreamController<Uint8List>.broadcast();
   StreamSubscription? _audioStreamSubscription;
 
@@ -47,10 +47,10 @@ class IOSCameraServiceImpl implements IOSCameraService {
   @override
   FutureBool checkCameraPermissions() {
     return ErrorHandler.handleException(() async {
-      bool isCameraPermissionGranted =
-          await _cameraHostApi.requestCameraAccess();
-      bool isMicrophonePermissionGranted =
-          await _cameraHostApi.requestMicrophoneAccess();
+      bool isCameraPermissionGranted = await _cameraHostApi
+          .requestCameraAccess();
+      bool isMicrophonePermissionGranted = await _cameraHostApi
+          .requestMicrophoneAccess();
 
       return SuccessState(
         data: isCameraPermissionGranted && isMicrophonePermissionGranted,
@@ -67,10 +67,11 @@ class IOSCameraServiceImpl implements IOSCameraService {
   }
 
   @override
-  FutureNull updateCameraVideoOutputOrientation() {
+  FutureInt updateCameraVideoOutputOrientation() {
     return ErrorHandler.handleException(() async {
-      await _cameraHostApi.updateCameraVideoOutputOrientation();
-      return SuccessNullState();
+      final rotationDegrees = await _cameraHostApi
+          .updateCameraVideoOutputOrientation();
+      return SuccessState(data: rotationDegrees);
     });
   }
 
@@ -83,7 +84,7 @@ class IOSCameraServiceImpl implements IOSCameraService {
             _imageStreamController.add(imageData as Uint8List);
           });
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -95,7 +96,7 @@ class IOSCameraServiceImpl implements IOSCameraService {
     return ErrorHandler.handleException(() async {
       await _imageStreamSubscription?.cancel();
       _imageStreamSubscription = null;
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -108,7 +109,7 @@ class IOSCameraServiceImpl implements IOSCameraService {
             _audioStreamController.add(audioData as Uint8List);
           });
 
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -120,7 +121,7 @@ class IOSCameraServiceImpl implements IOSCameraService {
     return ErrorHandler.handleException(() async {
       await _audioStreamSubscription?.cancel();
       _audioStreamSubscription = null;
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -128,7 +129,7 @@ class IOSCameraServiceImpl implements IOSCameraService {
   FutureNull startVideoRecording() {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.startVideoRecording();
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -136,7 +137,7 @@ class IOSCameraServiceImpl implements IOSCameraService {
   FutureNull stopVideoRecording() {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.stopVideoRecording();
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 
@@ -144,7 +145,7 @@ class IOSCameraServiceImpl implements IOSCameraService {
   FutureNull closeCamera() {
     return ErrorHandler.handleException(() async {
       await _cameraHostApi.closeCamera();
-      return SuccessNullState();
+      return SuccessState.nil;
     });
   }
 }

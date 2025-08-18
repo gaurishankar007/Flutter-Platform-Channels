@@ -16,6 +16,10 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		AF7AF8194C5CC5A583022735 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E707047FBF87F6603F85A603 /* Pods_Runner.framework */; };
+		D4CBEEDF2E533B8F00C47EA4 /* AudioStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CBEEDE2E533B8700C47EA4 /* AudioStreamHandler.swift */; };
+		D4CBEEE12E533BA200C47EA4 /* CameraPreviewHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CBEEE02E533B9A00C47EA4 /* CameraPreviewHandler.swift */; };
+		D4CBEEE32E533BB800C47EA4 /* CameraUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CBEEE22E533BB500C47EA4 /* CameraUtil.swift */; };
+		D4CBEEE52E533BD900C47EA4 /* VideoRecordHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CBEEE42E533BCF00C47EA4 /* VideoRecordHandler.swift */; };
 		D4DA11B82E1FB7B6008BA526 /* IOSCameraApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DA11B72E1FB7B6008BA526 /* IOSCameraApi.swift */; };
 /* End PBXBuildFile section */
 
@@ -65,6 +69,10 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C72A15BC7A5DE6462ECCC334 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		D4CBEEDE2E533B8700C47EA4 /* AudioStreamHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioStreamHandler.swift; sourceTree = "<group>"; };
+		D4CBEEE02E533B9A00C47EA4 /* CameraPreviewHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewHandler.swift; sourceTree = "<group>"; };
+		D4CBEEE22E533BB500C47EA4 /* CameraUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraUtil.swift; sourceTree = "<group>"; };
+		D4CBEEE42E533BCF00C47EA4 /* VideoRecordHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoRecordHandler.swift; sourceTree = "<group>"; };
 		D4DA11B72E1FB7B6008BA526 /* IOSCameraApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSCameraApi.swift; sourceTree = "<group>"; };
 		E707047FBF87F6603F85A603 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -154,6 +162,10 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				D4CBEEE42E533BCF00C47EA4 /* VideoRecordHandler.swift */,
+				D4CBEEE22E533BB500C47EA4 /* CameraUtil.swift */,
+				D4CBEEE02E533B9A00C47EA4 /* CameraPreviewHandler.swift */,
+				D4CBEEDE2E533B8700C47EA4 /* AudioStreamHandler.swift */,
 				D4DA11B72E1FB7B6008BA526 /* IOSCameraApi.swift */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -397,9 +409,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4CBEEE32E533BB800C47EA4 /* CameraUtil.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				D4CBEEE52E533BD900C47EA4 /* VideoRecordHandler.swift in Sources */,
 				D4DA11B82E1FB7B6008BA526 /* IOSCameraApi.swift in Sources */,
+				D4CBEEDF2E533B8F00C47EA4 /* AudioStreamHandler.swift in Sources */,
+				D4CBEEE12E533BA200C47EA4 /* CameraPreviewHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

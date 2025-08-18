@@ -14,24 +14,20 @@ PlatformException _createConnectionError(String channelName) {
     message: 'Unable to establish connection on channel: "$channelName".',
   );
 }
-
 bool _deepEquals(Object? a, Object? b) {
   if (a is List && b is List) {
     return a.length == b.length &&
-        a.indexed.every(
-          ((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]),
-        );
+        a.indexed
+        .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
-    return a.length == b.length &&
-        a.entries.every(
-          (MapEntry<Object?, Object?> entry) =>
-              (b as Map<Object?, Object?>).containsKey(entry.key) &&
-              _deepEquals(entry.value, b[entry.key]),
-        );
+    return a.length == b.length && a.entries.every((MapEntry<Object?, Object?> entry) =>
+        (b as Map<Object?, Object?>).containsKey(entry.key) &&
+        _deepEquals(entry.value, b[entry.key]));
   }
   return a == b;
 }
+
 
 /// Specifies the parameters for opening the camera
 /// - [cameraIndex]: Camera selection index (e.g., 0 for back, 1 for front)
@@ -65,8 +61,7 @@ class IOSCameraRequest {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static IOSCameraRequest decode(Object result) {
     result as List<Object?>;
@@ -92,7 +87,8 @@ class IOSCameraRequest {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 /// Stores the camera data while opening the camera
@@ -100,12 +96,14 @@ class IOSCameraRequest {
 /// - [videoInputSize]: Camera capture resolution
 /// - [videoInputFrameRate]: Camera capture frame rate
 /// - [supportedSizes]: Supported sizes along with it's frame rates by the camera device.
+/// - [rotationDegrees]: Camera preview rotation degrees for accurate preview.
 class IOSCameraData {
   IOSCameraData({
     required this.textureId,
     required this.videoInputSize,
     required this.videoInputFrameRate,
     required this.supportedSizes,
+    required this.rotationDegrees,
   });
 
   int textureId;
@@ -116,18 +114,20 @@ class IOSCameraData {
 
   List<IOSCameraSize> supportedSizes;
 
+  int rotationDegrees;
+
   List<Object?> _toList() {
     return <Object?>[
       textureId,
       videoInputSize,
       videoInputFrameRate,
       supportedSizes,
+      rotationDegrees,
     ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static IOSCameraData decode(Object result) {
     result as List<Object?>;
@@ -136,6 +136,7 @@ class IOSCameraData {
       videoInputSize: result[1]! as IOSSize,
       videoInputFrameRate: result[2]! as int,
       supportedSizes: (result[3] as List<Object?>?)!.cast<IOSCameraSize>(),
+      rotationDegrees: result[4]! as int,
     );
   }
 
@@ -153,7 +154,8 @@ class IOSCameraData {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 /// - [width]: Width of the size.
@@ -173,12 +175,15 @@ class IOSCameraSize {
   List<int> frameRates;
 
   List<Object?> _toList() {
-    return <Object?>[width, height, frameRates];
+    return <Object?>[
+      width,
+      height,
+      frameRates,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static IOSCameraSize decode(Object result) {
     result as List<Object?>;
@@ -203,27 +208,36 @@ class IOSCameraSize {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class IOSSize {
-  IOSSize({required this.width, required this.height});
+  IOSSize({
+    required this.width,
+    required this.height,
+  });
 
   double width;
 
   double height;
 
   List<Object?> _toList() {
-    return <Object?>[width, height];
+    return <Object?>[
+      width,
+      height,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static IOSSize decode(Object result) {
     result as List<Object?>;
-    return IOSSize(width: result[0]! as double, height: result[1]! as double);
+    return IOSSize(
+      width: result[0]! as double,
+      height: result[1]! as double,
+    );
   }
 
   @override
@@ -240,27 +254,36 @@ class IOSSize {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
 
 class IOSRangeInt {
-  IOSRangeInt({required this.lower, required this.upper});
+  IOSRangeInt({
+    required this.lower,
+    required this.upper,
+  });
 
   int lower;
 
   int upper;
 
   List<Object?> _toList() {
-    return <Object?>[lower, upper];
+    return <Object?>[
+      lower,
+      upper,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static IOSRangeInt decode(Object result) {
     result as List<Object?>;
-    return IOSRangeInt(lower: result[0]! as int, upper: result[1]! as int);
+    return IOSRangeInt(
+      lower: result[0]! as int,
+      upper: result[1]! as int,
+    );
   }
 
   @override
@@ -277,8 +300,10 @@ class IOSRangeInt {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList());
+  int get hashCode => Object.hashAll(_toList())
+;
 }
+
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -287,19 +312,19 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is IOSCameraRequest) {
+    }    else if (value is IOSCameraRequest) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is IOSCameraData) {
+    }    else if (value is IOSCameraData) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is IOSCameraSize) {
+    }    else if (value is IOSCameraSize) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is IOSSize) {
+    }    else if (value is IOSSize) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is IOSRangeInt) {
+    }    else if (value is IOSRangeInt) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
@@ -310,15 +335,15 @@ class _PigeonCodec extends StandardMessageCodec {
   @override
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
-      case 129:
+      case 129: 
         return IOSCameraRequest.decode(readValue(buffer)!);
-      case 130:
+      case 130: 
         return IOSCameraData.decode(readValue(buffer)!);
-      case 131:
+      case 131: 
         return IOSCameraSize.decode(readValue(buffer)!);
-      case 132:
+      case 132: 
         return IOSSize.decode(readValue(buffer)!);
-      case 133:
+      case 133: 
         return IOSRangeInt.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -330,12 +355,9 @@ class IOSCameraHostApi {
   /// Constructor for [IOSCameraHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  IOSCameraHostApi({
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) : pigeonVar_binaryMessenger = binaryMessenger,
-       pigeonVar_messageChannelSuffix =
-           messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  IOSCameraHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -343,14 +365,12 @@ class IOSCameraHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<bool> requestCameraAccess() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.requestCameraAccess$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.requestCameraAccess$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -373,14 +393,12 @@ class IOSCameraHostApi {
   }
 
   Future<bool> requestMicrophoneAccess() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.requestMicrophoneAccess$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.requestMicrophoneAccess$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -403,17 +421,13 @@ class IOSCameraHostApi {
   }
 
   Future<IOSCameraData> openCamera(IOSCameraRequest request) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.openCamera$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[request],
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.openCamera$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
     );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[request]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -434,15 +448,13 @@ class IOSCameraHostApi {
     }
   }
 
-  Future<bool> updateCameraVideoOutputOrientation() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.updateCameraVideoOutputOrientation$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+  Future<int> updateCameraVideoOutputOrientation() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.updateCameraVideoOutputOrientation$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -460,19 +472,17 @@ class IOSCameraHostApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as bool?)!;
+      return (pigeonVar_replyList[0] as int?)!;
     }
   }
 
   Future<bool> startVideoRecording() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.startVideoRecording$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.startVideoRecording$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -495,14 +505,12 @@ class IOSCameraHostApi {
   }
 
   Future<bool> stopVideoRecording() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.stopVideoRecording$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.stopVideoRecording$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
@@ -525,14 +533,12 @@ class IOSCameraHostApi {
   }
 
   Future<bool> closeCamera() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.closeCamera$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.com.platform.channel.IOSCameraHostApi.closeCamera$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;

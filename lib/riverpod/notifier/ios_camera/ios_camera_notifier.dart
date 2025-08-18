@@ -51,6 +51,7 @@ class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
       textureId: cameraData.textureId,
       previewWidth: cameraData.videoInputSize.width,
       previewHeight: cameraData.videoInputSize.height,
+      quarterTurns: cameraData.rotationDegrees ~/ 90,
     );
 
     log(
@@ -76,8 +77,12 @@ class IOSCameraNotifier extends BaseStateNotifier<IOSCameraState> {
   }
 
   /// Updates the camera video output orientation and the aspect ratio
-  Future<void> updateOrientation() async =>
-      await _cameraService.updateCameraVideoOutputOrientation();
+  Future<void> updateOrientation() async {
+    final dataState = await _cameraService.updateCameraVideoOutputOrientation();
+    if (dataState.hasError) return;
+
+    state = state.copyWith(quarterTurns: dataState.data! ~/ 90);
+  }
 
   Future<void> startImageStream() async {
     final dataState = await _cameraService.startImageStream();
