@@ -8,9 +8,11 @@ import 'dart:ui_web' as ui;
 import 'package:flutter/foundation.dart' show Endian;
 import 'package:web/web.dart' as web;
 
-import '../data/errors/data_handler.dart';
-import '../data/states/data_state.dart';
-import '../utils/type_defs.dart';
+import '../../data/errors/data_handler.dart';
+import '../../data/states/data_state.dart';
+import '../../utils/type_defs.dart';
+
+part 'web_camera_util.dart';
 
 abstract class WebCameraService {
   FutureBool checkCameraPermissions();
@@ -53,68 +55,35 @@ class WebCameraServiceImpl implements WebCameraService {
   @override
   FutureBool checkCameraPermissions() {
     return ErrorHandler.handleException(() async {
-      // Check camera permission
-      final cameraPermissionDescriptor = {'name': 'camera'}.jsify() as JSObject;
-      final cameraPermissionState =
-          await web.window.navigator.permissions
-              .query(cameraPermissionDescriptor)
-              .toDart;
-      final isCameraPermissionGranted =
-          cameraPermissionState.state == 'granted';
+      final permissionStatus = await Future.wait([
+        WebCameraUtil.isCameraPermissionGranted(),
+        WebCameraUtil.isMicrophonePermissionGranted(),
+      ]);
+      final isPermissionGranted = permissionStatus.reduce((a, b) => a && b);
 
-      // Check microphone permission
-      final microphonePermissionDescriptor =
-          {'name': 'microphone'}.jsify() as JSObject;
-      final microphonePermissionState =
-          await web.window.navigator.permissions
-              .query(microphonePermissionDescriptor)
-              .toDart;
-      final isMicrophonePermissionGranted =
-          microphonePermissionState.state == 'granted';
-
-      return SuccessState(
-        data: isCameraPermissionGranted && isMicrophonePermissionGranted,
-      );
+      return SuccessState(data: isPermissionGranted);
     });
   }
 
   @override
   Future<DataState<String>> openCamera(WebCameraRequest request) {
     return ErrorHandler.handleException(() async {
-      // Define the desired video settings, including resolution and camera facing mode.
-      final videoSetting = {
-        "facingMode": request.facingMode,
-        "frameRate": request.cameraFrameRate,
-        "width": request.cameraSize.width,
-        "height": request.cameraSize.height,
-      };
-      final audioSetting = {
-        "sampleRate": 48000, // Preferred sample rate
-        "channelCount": 1, // Mono
-        "echoCancellation": true,
-      };
-      // Create media stream constraints, requesting both video (with the defined settings) and audio.
-      final mediaStreamConstraints = web.MediaStreamConstraints(
-        video: videoSetting.jsify() as JSObject,
-        audio: audioSetting.jsify() as JSObject,
-      );
+      final constraints = WebCameraUtil.getMediaStreamConstraints(request);
 
       // Request access to the user's camera and microphone.
       // This will trigger a permission prompt in the browser if not already granted.
-      _cameraStream =
-          await web.window.navigator.mediaDevices
-              .getUserMedia(mediaStreamConstraints)
-              .toDart;
+      _cameraStream = await web.window.navigator.mediaDevices
+          .getUserMedia(constraints)
+          .toDart;
 
       // Configure the video element styles for camera preview.
-      _videoElement =
-          web.HTMLVideoElement()
-            ..srcObject = _cameraStream
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..style.objectFit = 'contain'
-            ..autoplay = true
-            ..muted = true; // Don't provide output audio in the video element.
+      _videoElement = web.HTMLVideoElement()
+        ..srcObject = _cameraStream
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.objectFit = 'contain'
+        ..autoplay = true
+        ..muted = true; // Don't provide output audio in the video element.
 
       // Register the factory with the unique view type for camera preview.
       final htmlElementType =
@@ -124,40 +93,7 @@ class WebCameraServiceImpl implements WebCameraService {
         (int viewId) => _videoElement!,
       );
 
-      // Update supported video recording types based on browser capabilities.
-      final videoMimeTypes = [
-        WebVideoRecordType(
-          mimeType: 'video/mp4;codecs=h264,aac',
-          fileType: "mp4",
-        ),
-        WebVideoRecordType(
-          mimeType: 'video/mp4;codecs=avc1.424028,mp4a.40.2',
-          fileType: "mp4",
-        ),
-        WebVideoRecordType(mimeType: 'video/mp4', fileType: "mp4"),
-        WebVideoRecordType(
-          mimeType: 'video/webm;codecs=vp9,opus',
-          fileType: "webm",
-        ),
-        WebVideoRecordType(
-          mimeType: 'video/webm;codecs=vp8,opus',
-          fileType: "webm",
-        ),
-        WebVideoRecordType(mimeType: 'video/webm', fileType: "webm"),
-      ];
-      // Check whether the browser supports mp4 video recording.
-      if (videoMimeTypes.any((type) => type.fileType == "mp4")) {
-        _videoRecordType = videoMimeTypes.firstWhere(
-          (type) =>
-              web.MediaRecorder.isTypeSupported(type.mimeType) &&
-              type.fileType == "mp4",
-        );
-      } else {
-        _videoRecordType = videoMimeTypes.firstWhere(
-          (type) => web.MediaRecorder.isTypeSupported(type.mimeType),
-          orElse: () => videoMimeTypes.last,
-        );
-      }
+      _videoRecordType = WebCameraUtil.getVideoRecordType();
 
       return SuccessState(data: htmlElementType);
     });
@@ -182,10 +118,9 @@ class WebCameraServiceImpl implements WebCameraService {
       _frameTimer = Timer.periodic(duration, (_) {
         _canvasContext?.drawImage(_videoElement!, 0, 0);
 
-        final encodedImageData =
-            _canvasElement!
-                .toDataUrl('image/jpeg') // You can use 'image/png' too
-                .split(',')[1]; // Strip data URL prefix
+        final encodedImageData = _canvasElement!
+            .toDataUrl('image/jpeg') // You can use 'image/png' too
+            .split(',')[1]; // Strip data URL prefix
         final imageBytes = base64Decode(encodedImageData);
 
         _imageStreamController.add(imageBytes);
@@ -234,15 +169,17 @@ class WebCameraServiceImpl implements WebCameraService {
         final audioEvent = event as web.AudioProcessingEvent;
 
         final inputBuffer = audioEvent.inputBuffer;
-        final channelData =
-            inputBuffer.getChannelData(0).toDart; // Mono channel
+        final channelData = inputBuffer
+            .getChannelData(0)
+            .toDart; // Mono channel
 
         // Convert to 16-bit signed PCM
         final byteBuffer = ByteData(channelData.length * 2);
         for (int i = 0; i < channelData.length; i++) {
           // Clamp and convert to 16-bit PCM: range [-32768, 32767]
-          final sample =
-              (channelData[i] * 32767.0).clamp(-32768.0, 32767.0).toInt();
+          final sample = (channelData[i] * 32767.0)
+              .clamp(-32768.0, 32767.0)
+              .toInt();
           byteBuffer.setInt16(i * 2, sample, Endian.little);
         }
         final bytes = byteBuffer.buffer.asUint8List();
@@ -348,11 +285,10 @@ class WebCameraServiceImpl implements WebCameraService {
       // Create anchor element via JS interop
       final fileName =
           '${DateTime.now().millisecondsSinceEpoch}_video.${_videoRecordType.fileType}';
-      final anchor =
-          web.HTMLAnchorElement()
-            ..href = url
-            ..download = fileName
-            ..style.display = 'none';
+      final anchor = web.HTMLAnchorElement()
+        ..href = url
+        ..download = fileName
+        ..style.display = 'none';
 
       web.document.body?.appendChild(anchor);
       anchor.click();
@@ -384,40 +320,4 @@ class WebCameraServiceImpl implements WebCameraService {
       return SuccessState.nil;
     });
   }
-}
-
-/// - [facingMode]: Specifies camera type. 'user' = front camera, 'environment' = back camera.
-/// - [cameraFrameRate]: The camera stream in frames per second (FPS).
-/// - [cameraSize]: Camera image capture resolution.
-class WebCameraRequest {
-  final String facingMode;
-  final int cameraFrameRate;
-  final Size cameraSize;
-
-  const WebCameraRequest({
-    required this.facingMode,
-    required this.cameraFrameRate,
-    required this.cameraSize,
-  });
-}
-
-/// - [audioBitsPerSecond]: Sets the target bitrate for audio encoding. 128,000 (128 kbps) - standard quality.
-/// - [videoBitsPerSecond]: Sets the target bitrate for video encoding. 720p: 1-3 Mbps, 1080p: 3-8 Mbps.
-class WebVideoRecordRequest {
-  final int audioBitsPerSecond;
-  final int videoBitsPerSecond;
-
-  const WebVideoRecordRequest({
-    required this.audioBitsPerSecond,
-    required this.videoBitsPerSecond,
-  });
-}
-
-/// - [mimeType]: The MIME type fo the video recording.
-/// - [fileType]: The file extension for the video recording.
-class WebVideoRecordType {
-  final String mimeType;
-  final String fileType;
-
-  const WebVideoRecordType({required this.mimeType, required this.fileType});
 }

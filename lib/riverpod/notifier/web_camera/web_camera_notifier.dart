@@ -5,7 +5,7 @@ import 'dart:ui' show Size;
 
 import 'package:flutter/widgets.dart' show WidgetsBinding;
 
-import '../../../core/services/web_camera_service.dart';
+import '../../../core/services/web_camera//web_camera_service.dart';
 import '../../../core/utils/base_notifier/base_state_notifier.dart';
 
 part 'web_camera_state.dart';
