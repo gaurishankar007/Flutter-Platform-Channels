@@ -1,12 +1,22 @@
 # Flutter Platform Channels – Complete Guide
 
-This guide explains how to use the three types of Flutter platform channels:
+This repository is a complete guide to Flutter Platform Channels, with implementations spread across different branches.
+
+### Branches
+
+*   **`master`:** Provides an introduction to Flutter platform channels with Flutter's default options.
+
+*   **`pigeon_example`:** Guides how to use the Pigeon package for type-safe communication between Flutter and the platform.
+
+*   **`camera_api`:** Provides guidance on how to use the Android and iOS platform-specific camera APIs to integrate camera features like previewing, streaming images/audio, and recording video, using both Flutter's default options and the Pigeon package. This branch also includes camera features for the web platform with the help of the `web` package.
+
+---
+
+This guide on the `master` branch explains how to use the three types of Flutter platform channels:
 
 - ✅ **EventChannel** – For streaming data from native to Flutter
 - ✅ **MethodChannel** – For two-way method calls (request → response)
 - ✅ **BasicMessageChannel** – For sending messages back and forth without request-response
-
-**Bonus:** [View Pigeon Package Implementation for Platform channels](https://github.com/gaurishankar007/Flutter-Platform-Channels/tree/pigeon_example)
 
 ---
 
