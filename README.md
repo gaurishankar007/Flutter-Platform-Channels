@@ -4,11 +4,11 @@ This repository is a complete guide to Flutter Platform Channels, with implement
 
 ### Branches
 
-*   **`master`:** Provides an introduction to Flutter platform channels with Flutter's default options.
+- **`master`:** Provides an introduction to Flutter platform channels with Flutter's default options.
 
-*   **`pigeon_example`:** Guides how to use the Pigeon package for type-safe communication between Flutter and the platform.
+- **`pigeon_example`:** Guides how to use the Pigeon package for type-safe communication between Flutter and the platform.
 
-*   **`camera_api`:** Provides guidance on how to use the Android and iOS platform-specific camera APIs to integrate camera features like previewing, streaming images/audio, and recording video, using both Flutter's default options and the Pigeon package. This branch also includes camera features for the web platform with the help of the `web` package.
+- **`camera_api`:** Provides guidance on how to use the Android and iOS platform-specific camera APIs to integrate camera features like previewing, streaming images/audio, and recording video, using both Flutter's default options and the Pigeon package. This branch also includes camera features for the web platform with the help of the `web` package.
 
 ---
 
@@ -86,6 +86,7 @@ class MainActivity : FlutterActivity() {
 - ✅ `onListen` is triggered when Flutter starts `receiveBroadcastStream()`.
 - ✅ `onCancel` is triggered when Flutter cancels the stream.
 - ✅ If Flutter restarts listening, `onListen` is called again.
+- ✅ Alternatively, you can create a separate class that implements `EventChannel.StreamHandler` and pass an instance of it to `setStreamHandler`. This is useful for better code organization, as shown in the iOS example.
 
 ### 🔹 iOS (Swift) Side
 
